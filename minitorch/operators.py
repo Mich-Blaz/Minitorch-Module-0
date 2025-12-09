@@ -25,11 +25,13 @@ def eq(x : float, y: float) -> bool:
     return x == y
 
 def max(x : float , y : float) -> float:
-    return max(x,y)
+    return x if x>y else y
 
 def is_close(x: float , y : float , threshold : float =1e-2) -> bool : 
-    return abs(x-y) < threshold
+    if isinstance(x,(float,int)) and isinstance(y,(float,int)):
+        return abs(x-y) < threshold
 
+    
 def exp(x : float) -> float : 
     return math.exp(x)
 
@@ -64,6 +66,15 @@ def relu_back(x : float , y : float) -> float:
 
 def relu(x : float) -> float: 
     return x if x>0 else 0
+
+def fnList(fn:Callable[[float,float],bool]) -> Callable[[Iterable[float],Iterable[float]],Iterable[float]] :
+    def apply(ls1 : Iterable[float], ls2 : Iterable[float]):
+        ret = []
+        for x,y in zip(ls1,ls2):
+            ret.append(fn(x,y))
+        return ret 
+    return apply
+
 
 #
 # Implementation of a prelude of elementary functions.
@@ -112,3 +123,38 @@ def relu(x : float) -> float:
 
 
 # TODO: Implement for Task 0.3.
+
+
+def map(fn : Callable[[float],float]) -> Callable[[Iterable[float]],Iterable[float]]:
+    def apply(l: Iterable[float]) -> Iterable[float]:
+        ret = []
+        for k in l:
+            ret.append(fn(k))
+        return ret
+    return apply
+
+
+
+def ZipWith(fn : Callable[[Iterable[float]],Iterable[float]]) -> Callable[[Iterable[float],Iterable[float]],Iterable[float]]:
+    def apply(l1: Iterable[float],l2 : Iterable[float]) -> Iterable[float]:
+        ret = []
+        for l_1,l_2 in zip(l1,l2):
+            ret.append(fn(l_1,l_2))
+        return ret
+    return apply
+
+def reduce(fn : Callable[[float,float],float]) -> Callable[[Iterable[float]],float] : 
+    def apply(l : Iterable[float]) -> float:
+        if l:    
+            res = l[0]
+            for k in l[1:]:
+                res = fn(k,res)
+            return res
+        else:
+            return None
+    return apply
+
+negList = map(neg)
+addLists = ZipWith(add)
+sum = reduce(add)
+prod = reduce(mul)
