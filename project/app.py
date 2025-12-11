@@ -44,7 +44,7 @@ if module_selection == "Module 0":
 
     def render_run_manual_interface():
         st.header("Module 0 - Manual")
-        render_train_interface(ManualTrain, False, False, True)
+        render_train_interface(ManualTrain, False, False, True )
 
     def render_m0_sandbox():
         return render_math_sandbox(False)

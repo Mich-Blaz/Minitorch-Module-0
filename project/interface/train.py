@@ -13,6 +13,7 @@ import minitorch
 def render_train_interface(
     TrainCls, graph=True, hidden_layer=True, parameter_control=False
 ):
+    name_plot_key = repr(TrainCls).split('.')[-1][:-2]
     datasets_map = minitorch.datasets
     st.write("## Sandbox for Model Training")
 
@@ -21,7 +22,7 @@ def render_train_interface(
     points = col2.slider("Number of points", min_value=1, max_value=150, value=50)
     selected_dataset = col1.selectbox("Select dataset", list(datasets_map.keys()))
 
-    @st.cache
+    @st.cache_resource 
     def get_dataset(selected_dataset, points):
         return datasets_map[selected_dataset](points)
 
@@ -29,7 +30,7 @@ def render_train_interface(
 
     fig = plots.plot_out(dataset)
     fig.update_layout(width=600, height=600)
-    st.plotly_chart(fig)
+    st.plotly_chart(fig, key = f"{name_plot_key}_dataset_plot")
 
     st.markdown("### Model")
     if hidden_layer:
@@ -39,7 +40,7 @@ def render_train_interface(
     else:
         hidden_layers = 0
 
-    @st.cache
+    @st.cache_resource
     def get_train(hidden_layers):
         train = TrainCls(hidden_layers)
         one_output = train.run_one(dataset.X[0])
@@ -124,7 +125,7 @@ def render_train_interface(
         df.append({"epoch": epoch, "loss": total_loss, "correct": correct})
         st_epoch_stats.write(pd.DataFrame(reversed(df)))
 
-        st_epoch_image.plotly_chart(plot())
+        st_epoch_image.plotly_chart(plot(),use_container_width=True)#key = f"{name_plot_key}_epoch_image")
         if hasattr(train, "train"):
             loss_graph = go.Scatter(mode="lines", x=list(range(len(losses))), y=losses)
             fig = go.Figure(loss_graph)
@@ -133,7 +134,7 @@ def render_train_interface(
                 xaxis=dict(range=[0, max_epochs]),
                 yaxis=dict(range=[0, max(losses)]),
             )
-            st_epoch_plot.plotly_chart(fig)
+            st_epoch_plot.plotly_chart(fig, use_container_width=True)#key=f"{name_plot_key}_epoch_plot")
 
             print(
                 f"Epoch: {epoch}/{max_epochs}, loss: {total_loss}, correct: {correct}"
