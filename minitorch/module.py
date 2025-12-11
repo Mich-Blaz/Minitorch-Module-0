@@ -61,7 +61,8 @@ class Module:
         for kp,vp in self._parameters.items():
             params.append((kp,vp))
         for km,kv in self._modules.items():
-            params.append((km,kv.named_parameters()))
+            for kpm,kvm in kv.named_parameters():
+                params.append((f"{km}.{kpm}",kvm))
         return params
 
     def parameters(self) -> Sequence[Parameter]:
@@ -70,7 +71,7 @@ class Module:
         params = []
         for kv in self._parameters.values():
             params.append(kv) 
-        for km in self._modules:
+        for km in self._modules.values():
             params.extend(km.parameters())
         return params
 
